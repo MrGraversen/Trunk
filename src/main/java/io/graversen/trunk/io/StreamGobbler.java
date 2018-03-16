@@ -1,4 +1,4 @@
-package io.graversen.trunk.utils.io;
+package io.graversen.trunk.io;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
