@@ -1,4 +1,6 @@
 # Trunk
+[![](https://jitpack.io/v/MrGraversen/Trunk.svg)](https://jitpack.io/#MrGraversen/Trunk)
+
 A growing collection of classes I've written and found useful in any degree. I'm (going to be) using this as a base toolbox for most projects; perhaps you may find it of use as well.
 
 ## Installation
