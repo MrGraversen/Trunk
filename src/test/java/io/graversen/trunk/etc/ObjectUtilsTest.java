@@ -6,7 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ObjectUtilsTest
+public class ObjectUtilsTest
 {
     @Test
     public void assertHasNoNullFields_NoNulls()
