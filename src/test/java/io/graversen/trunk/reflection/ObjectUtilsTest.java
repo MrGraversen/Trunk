@@ -1,4 +1,4 @@
-package io.graversen.trunk.etc;
+package io.graversen.trunk.reflection;
 
 import org.junit.jupiter.api.Test;
 
