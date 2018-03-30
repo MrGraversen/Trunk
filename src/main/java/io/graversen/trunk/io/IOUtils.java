@@ -45,7 +45,7 @@ public final class IOUtils
 
     private static GsonBuilder defaultGsonBuilder()
     {
-        return new GsonBuilder();
+        return new GsonBuilder().setPrettyPrinting();
     }
 
     /**

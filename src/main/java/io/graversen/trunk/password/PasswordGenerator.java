@@ -37,7 +37,7 @@ public class PasswordGenerator
         return new Password(password.toCharArray());
     }
 
-    private class PasswordBuilder
+    public class PasswordBuilder
     {
         private int length = 8;
         private boolean letters = false;

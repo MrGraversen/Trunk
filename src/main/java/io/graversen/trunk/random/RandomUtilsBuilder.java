@@ -14,7 +14,7 @@ public class RandomUtilsBuilder
     public static final String DIGITS = "0123456789";
     public static final String SYMBOLS = "!?+-_(){}[]%&$#@";
 
-    public static final String DEFAULT_ALPHABET = String.format("%s%s%s%s", LETTERS_UPPERCASE, LETTERS_LOWERCASE);
+    public static final String DEFAULT_ALPHABET = String.format("%s%s", LETTERS_UPPERCASE, LETTERS_LOWERCASE);
 
     private Random randomInstance = new Random();
     private String alphabet = DEFAULT_ALPHABET;
