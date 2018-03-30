@@ -123,6 +123,11 @@ public class RandomUtils
         final String availableCharacters = String.format("%s%s%s", (usingAlphabet ? ALPHABET : ""), (usingDigits ? DIGITS : ""), (usingSymbols ? SYMBOLS : ""));
         final StringBuilder stringBuilder = new StringBuilder(length);
 
+        if (availableCharacters.isEmpty())
+        {
+            throw new IllegalArgumentException("No available characters");
+        }
+
         for (int i = 0; i < length; i++)
         {
             stringBuilder.append(availableCharacters.charAt(randomInt(0, availableCharacters.length() - 1)));
