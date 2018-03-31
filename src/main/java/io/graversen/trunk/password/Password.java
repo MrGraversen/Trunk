@@ -54,6 +54,12 @@ public class Password implements CharSequence
         super.finalize();
     }
 
+    @Override
+    public String toString()
+    {
+        return new String(chars);
+    }
+
     public Strength strength()
     {
         Zxcvbn zxcvbn = new Zxcvbn();

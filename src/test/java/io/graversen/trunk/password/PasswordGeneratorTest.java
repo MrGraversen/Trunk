@@ -3,6 +3,9 @@ package io.graversen.trunk.password;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordGeneratorTest
@@ -26,7 +29,7 @@ class PasswordGeneratorTest
     }
 
     @Test
-    public void testPassword()
+    public void testPassword1()
     {
         final Password password = this.passwordGenerator.newPassword().withLetters().length(64).generate();
         assert password.length() == 64;
@@ -36,5 +39,28 @@ class PasswordGeneratorTest
     public void testPassword_illegalSetup()
     {
         assertThrows(IllegalArgumentException.class, () -> this.passwordGenerator.newPassword().length(64).generate());
+    }
+
+    @Test
+    public void testPassword2()
+    {
+        final Password password = this.passwordGenerator.defaultPassword(10);
+        assert password.length() == 10;
+    }
+
+    @Test
+    public void testManyPasswords()
+    {
+        // Very fun possibly nondeterministic test - why not?
+        final int passwordCount = 1000;
+        final Set<String> passwords = new HashSet<>();
+
+        for (int i = 0; i < passwordCount; i++)
+        {
+            final Password password = this.passwordGenerator.defaultPassword(16);
+            passwords.add(password.toString());
+        }
+
+        assert passwords.size() == passwordCount;
     }
 }
