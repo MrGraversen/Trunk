@@ -10,18 +10,18 @@ You may use JitPack to install this from the Github releases.
 Add the following to your `pom.xml` if using Maven:
 
 ```
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+<repositories>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
+</repositories>
 ```
 
 ```
-	<dependency>
-	    <groupId>com.github.MrGraversen</groupId>
-	    <artifactId>Trunk</artifactId>
-	    <version>0.0.1</version>
-	</dependency>
+<dependency>
+	<groupId>com.github.MrGraversen</groupId>
+	<artifactId>Trunk</artifactId>
+	<version>LATEST</version>
+</dependency>
 ```
