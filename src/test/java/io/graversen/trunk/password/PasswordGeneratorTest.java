@@ -49,7 +49,7 @@ class PasswordGeneratorTest
         assert password.length() == 10;
     }
 
-    @Test
+//    @Test
     @Disabled(value = "CodeShip is slow, therefore this is disabled!")
     public void testManyPasswords()
     {
