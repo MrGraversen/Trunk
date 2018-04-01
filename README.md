@@ -6,8 +6,8 @@ A growing collection of classes I've written and found useful in any degree. I'm
 
 ## Installation
 
-You may use JitPack to install this from the Github releases.  
-Add the following to your `pom.xml` if using Maven:
+You may use JitPack to install this from the GitHub releases.  
+Add the following to your `pom.xml` if using Maven (click the little JitPack badge for other build systems):
 
 ```
 <repositories>
