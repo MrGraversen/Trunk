@@ -1,6 +1,7 @@
 package io.graversen.trunk.password;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -49,6 +50,7 @@ class PasswordGeneratorTest
     }
 
     @Test
+    @Disabled(value = "CodeShip is slow, therefore this is disabled!")
     public void testManyPasswords()
     {
         // Very fun possibly nondeterministic test - why not?
