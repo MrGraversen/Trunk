@@ -49,6 +49,8 @@ Anything related to IO; also serialisation. Wrapping of `java.nio` to allow for 
 ### `password`
 Password generator utils, also exposes password strength estimation using [Dropbox' Low-Budget Password Strength Estimation algorithms](https://github.com/dropbox/zxcvbn).
 
+Also has BCrypt functionality, including an check-and-update method, for all your Moore's law scalability needs!
+
 ### `random`
 Generate random stuff, even using `/dev/urandom` if you're on \*nix systems!
 
