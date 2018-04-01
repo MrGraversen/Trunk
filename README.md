@@ -25,3 +25,43 @@ Add the following to your `pom.xml` if using Maven:
 	<version>LATEST</version>
 </dependency>
 ```
+
+## Packages
+
+### `console`
+Utilities related to console in- and output.
+
+### `fx`
+Helps mending some JavaFX pain.
+
+### `hardware`
+Handles aggregation of hardware-related information, using the [OSHI project](https://github.com/oshi/oshi).
+
+### `hashing`
+Some wrappers of the `java.security` functionality.
+
+### `io`
+Anything related to IO; also serialisation. Wrapping of `java.nio` to allow for more ease-of-use.
+
+### `os`
+*"Write once, run anywhere"* - but provide no easy way of determining the underlying operating system. That's fixed now.
+
+### `password`
+Password generator utils, also exposes password strength estimation using [Dropbox' Low-Budget Password Strength Estimation algorithms](https://github.com/dropbox/zxcvbn).
+
+### `random`
+Generate random stuff, even using `/dev/urandom` if you're on \*nix systems!
+
+### `reflection`
+Tools related to Java reflection techniques.
+
+## Dependencies
+
+This module also serves as a easy way of bundling together commonly-used dependencies, such as:
+
+* org.mindrot.jbcrypt
+* com.google.code.gson.gson
+* org.apache.commons.commons-lang3
+* commons-codec.commons-codec
+
+Uses JUnit 5.
