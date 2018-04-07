@@ -12,8 +12,10 @@ public class Telemetry
     private final long totalNetworkSentBytes;
     private final long availableMemory;
     private final long usedMemory;
+    private final double powerRemaining;
+    private final double timeRemaining;
 
-    public Telemetry(LocalDateTime telemetryReadAt, long systemUptime, double systemLoadAverage, double[] processorCpuLoadTicks, long totalNetworkReceivedBytes, long totalNetworkSentBytes, long availableMemory, long usedMemory)
+    public Telemetry(LocalDateTime telemetryReadAt, long systemUptime, double systemLoadAverage, double[] processorCpuLoadTicks, long totalNetworkReceivedBytes, long totalNetworkSentBytes, long availableMemory, long usedMemory, double powerRemaining, double timeRemaining)
     {
         this.telemetryReadAt = telemetryReadAt;
         this.systemUptime = systemUptime;
@@ -23,6 +25,8 @@ public class Telemetry
         this.totalNetworkSentBytes = totalNetworkSentBytes;
         this.availableMemory = availableMemory;
         this.usedMemory = usedMemory;
+        this.powerRemaining = powerRemaining;
+        this.timeRemaining = timeRemaining;
     }
 
     public LocalDateTime getTelemetryReadAt()
@@ -63,5 +67,15 @@ public class Telemetry
     public long getUsedMemory()
     {
         return usedMemory;
+    }
+
+    public double getPowerRemaining()
+    {
+        return powerRemaining;
+    }
+
+    public double getTimeRemaining()
+    {
+        return timeRemaining;
     }
 }

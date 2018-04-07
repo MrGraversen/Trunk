@@ -6,6 +6,7 @@ import io.graversen.trunk.hardware.objects.Screen;
 import io.graversen.trunk.hardware.objects.Telemetry;
 import oshi.SystemInfo;
 import oshi.hardware.NetworkIF;
+import oshi.hardware.PowerSource;
 
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -72,8 +73,10 @@ public class HardwareUtils
         final long availableMemory = SYSTEM_INFO.getHardware().getMemory().getAvailable();
         final long usedMemory = SYSTEM_INFO.getHardware().getMemory().getTotal() - availableMemory;
 
-        // TODO: Battery
+        final PowerSource powerSource = SYSTEM_INFO.getHardware().getPowerSources()[0];
+        final double powerRemaining = powerSource.getRemainingCapacity();
+        final double timeRemaining = powerSource.getTimeRemaining();
 
-        return new Telemetry(telemetryReadAt, systemUptime, systemLoadAverage, processorCpuLoadTicks, totalNetworkReceivedBytes, totalNetworkSentBytes, availableMemory, usedMemory);
+        return new Telemetry(telemetryReadAt, systemUptime, systemLoadAverage, processorCpuLoadTicks, totalNetworkReceivedBytes, totalNetworkSentBytes, availableMemory, usedMemory, powerRemaining, timeRemaining);
     }
 }
