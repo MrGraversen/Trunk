@@ -1,9 +1,33 @@
 package io.graversen.trunk.os;
 
+import java.awt.*;
+import java.net.URI;
 import java.util.Map;
 
 public class OSUtils
 {
+    public static void openInDefaultBrowser(String url)
+    {
+        if (Desktop.isDesktopSupported())
+        {
+            try
+            {
+                URI webUrl = new URI(url);
+                Desktop.getDesktop().browse(webUrl);
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("Unable to browse to target URL", e);
+            }
+        }
+    }
+
+    public static boolean isHeadless()
+    {
+        final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        return graphicsEnvironment.isHeadlessInstance();
+    }
+
     public OS getOperatingSystem()
     {
         String osName = System.getProperty("os.name").toLowerCase();
