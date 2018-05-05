@@ -2,6 +2,7 @@ package io.graversen.trunk.hashing;
 
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -10,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Provider;
 import java.security.Security;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -78,5 +80,12 @@ class DigestUtilsTest
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(PLAIN_TEXT_TEXT_FILE).getFile());
         assertEquals(PLAIN_TEXT_TXT_CHECKSUM_SHA512, this.digestUtils.digestFileHex(file.toPath(), DigestAlgorithms.SHA512));
+    }
+
+    @Test
+    @Disabled
+    public void testPerformance()
+    {
+        IntStream.range(0, 10_000_000).forEach(i -> digestUtils.computeHashHex("Hi there!", DigestAlgorithms.SHA256));
     }
 }

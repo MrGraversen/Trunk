@@ -9,12 +9,23 @@ import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Martin
  */
 public class DigestUtils
 {
+    private Map<String, MessageDigest> algorithms;
+
+    public DigestUtils()
+    {
+        this.algorithms = Arrays.stream(DigestAlgorithms.algorithms()).map(this::doGetMessageDigestInstance).collect(Collectors.toMap(MessageDigest::getAlgorithm, o -> o));
+    }
+
     /**
      * Provides an on-the-fly (reads and digests in one pass) checksum computation of a given file, using SHA-1
      *
@@ -80,13 +91,19 @@ public class DigestUtils
 
     private MessageDigest getMessageDigestInstance(String algorithm)
     {
+        final MessageDigest messageDigest = algorithms.get(algorithm);
+        return messageDigest != null ? messageDigest : doGetMessageDigestInstance(algorithm);
+    }
+
+    private MessageDigest doGetMessageDigestInstance(String algorithm)
+    {
         try
         {
             return MessageDigest.getInstance(algorithm);
         }
         catch (NoSuchAlgorithmException e)
         {
-            throw new IllegalArgumentException("Invalid digest algorithm", e);
+            throw new IllegalArgumentException(String.format("Invalid digest algorithm: %s", algorithm), e);
         }
     }
 }
