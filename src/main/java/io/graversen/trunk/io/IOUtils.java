@@ -1,7 +1,7 @@
 package io.graversen.trunk.io;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import io.graversen.trunk.io.serialization.PrettyPrintGsonSerializer;
+import io.graversen.trunk.io.serialization.interfaces.ISerializer;
 import io.graversen.trunk.os.OSUtils;
 
 import java.io.*;
@@ -14,7 +14,7 @@ public final class IOUtils
     private final String TEMPORARY_DIRECTORY_PATH = System.getProperty("java.io.tmpdir");
     private final String PROJECT_DIRECTORY_NAME;
 
-    private final Gson gson;
+    private final ISerializer serializer;
     private final OSUtils osUtils;
 
     public final String DEFAULT_WINDOWS_PATH;
@@ -24,28 +24,78 @@ public final class IOUtils
 
     public IOUtils()
     {
-        this(UUID.randomUUID().toString());
+        this(null);
     }
 
     public IOUtils(String projectDirectoryName)
     {
-        this(projectDirectoryName, defaultGsonBuilder());
+        this(projectDirectoryName, new PrettyPrintGsonSerializer());
     }
 
-    public IOUtils(String projectDirectoryName, GsonBuilder gsonBuilder)
+    public IOUtils(String projectDirectoryName, ISerializer serializer)
     {
-        this.PROJECT_DIRECTORY_NAME = projectDirectoryName;
-        this.gson = gsonBuilder.create();
         this.osUtils = new OSUtils();
+        this.serializer = serializer;
+
+        this.PROJECT_DIRECTORY_NAME = projectDirectoryName;
         this.DEFAULT_WINDOWS_PATH = Paths.get(System.getenv("APPDATA"), PROJECT_DIRECTORY_NAME).toString();
         this.DEFAULT_MAC_PATH = Paths.get(File.separator, "usr", "local", PROJECT_DIRECTORY_NAME).toString();
         this.DEFAULT_LINUX_PATH = Paths.get(File.separator, "etc", PROJECT_DIRECTORY_NAME).toString();
         this.DEFAULT_UNKNOWN_PATH = DEFAULT_LINUX_PATH;
     }
 
-    private static GsonBuilder defaultGsonBuilder()
+    private void validateProjectName()
     {
-        return new GsonBuilder().setPrettyPrinting();
+        if (PROJECT_DIRECTORY_NAME == null)
+        {
+            throw new IllegalStateException(String.format("Please initialise %s with a project name", getClass().getSimpleName()));
+        }
+    }
+
+    private void createIfNotExists(Path path)
+    {
+        if (!Files.exists(path))
+        {
+            try
+            {
+                Files.createDirectories(path);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException("Could not create directories", e);
+            }
+        }
+    }
+
+    public Path getStorageDirectory()
+    {
+        validateProjectName();
+        final Path storageDirectoryPath = Paths.get(getProjectDirectory().toString(), ".storage");
+        createIfNotExists(storageDirectoryPath);
+        return storageDirectoryPath;
+    }
+
+    public Path getProjectDirectory()
+    {
+        validateProjectName();
+        final Path projectDirectoryPath = getProjectDirectoryPath();
+        createIfNotExists(projectDirectoryPath);
+        return projectDirectoryPath;
+    }
+
+    private Path getProjectDirectoryPath()
+    {
+        switch (osUtils.getOperatingSystem())
+        {
+            case Windows:
+                return Paths.get(System.getenv("APPDATA"), PROJECT_DIRECTORY_NAME);
+
+            case Linux:
+                return Paths.get("etc", PROJECT_DIRECTORY_NAME);
+
+            default:
+                throw new RuntimeException(String.format("%s is not supported at the moment", osUtils.getOperatingSystem()));
+        }
     }
 
     /**
@@ -93,9 +143,9 @@ public final class IOUtils
      * @param serializeMode How the serialization should be done, i.e. JSON or as Java objects
      * @param <T>
      * @return The deserialized object
-     * @throws IOException Thrown if an error occurs during the process
+     * @throws RuntimeException Thrown if an error occurs during the process
      */
-    public <T> T deserialize(String fileName, Class<T> targetClass, SerializeMode serializeMode) throws IOException
+    public <T> T deserialize(String fileName, Class<T> targetClass, SerializeMode serializeMode)
     {
         return deserialize(Paths.get(getBasePath().toString(), fileName), targetClass, serializeMode);
     }
@@ -108,9 +158,9 @@ public final class IOUtils
      * @param serializeMode How the serialization should be done, i.e. JSON or as Java objects
      * @param <T>
      * @return The deserialized object
-     * @throws IOException Thrown if an error occurs during the process
+     * @throws RuntimeException Thrown if an error occurs during the process
      */
-    public <T> T deserialize(Path path, Class<T> targetClass, SerializeMode serializeMode) throws IOException
+    public <T> T deserialize(Path path, Class<T> targetClass, SerializeMode serializeMode)
     {
         if (!Files.exists(path)) throw new IllegalArgumentException("No file exists at " + path.toString());
         if (Files.isDirectory(path)) throw new IllegalArgumentException(path.toString() + " is a directory");
@@ -118,25 +168,17 @@ public final class IOUtils
         switch (serializeMode)
         {
             case OBJECT:
-
-                try
+                try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(path.toFile())))
                 {
-                    FileInputStream fin = new FileInputStream(path.toFile());
-                    ObjectInputStream ois = new ObjectInputStream(fin);
-                    T resultObject = targetClass.cast(ois.readObject());
-
-                    ois.close();
-
-                    return resultObject;
+                    return targetClass.cast(objectInputStream.readObject());
                 }
-                catch (ClassNotFoundException cfe)
+                catch (IOException | ClassNotFoundException e)
                 {
-                    throw new IOException("Class '" + targetClass.getCanonicalName() + "' was not found during run-time. Was it present during compile-time, though? Perhaps. We may never truly know...");
+                    throw new RuntimeException("Could not deserialize object", e);
                 }
 
             case JSON:
-
-                return gson.fromJson(read(path).toString(), targetClass);
+                return serializer.deserialize(read(path).toString(), targetClass);
         }
 
         return null;
@@ -149,9 +191,9 @@ public final class IOUtils
      * @param object        The object to be serialized
      * @param serializeMode How the serialization should be done, i.e. JSON or as Java objects
      * @return Path object representing where the serialized object was stored
-     * @throws IOException Thrown if an error occurs during the process
+     * @throws RuntimeException Thrown if an error occurs during the process
      */
-    public Path serialize(String fileName, Object object, SerializeMode serializeMode) throws IOException
+    public Path serialize(String fileName, Object object, SerializeMode serializeMode)
     {
         return serialize(Paths.get(getBasePath().toString(), fileName), object, serializeMode);
     }
@@ -163,9 +205,9 @@ public final class IOUtils
      * @param object        The object to be serialized
      * @param serializeMode How the serialization should be done, i.e. JSON or as Java objects
      * @return Path object representing where the serialized object was stored
-     * @throws IOException Thrown if an error occurs during the process
+     * @throws RuntimeException Thrown if an error occurs during the process
      */
-    public Path serialize(Path path, Object object, SerializeMode serializeMode) throws IOException
+    public Path serialize(Path path, Object object, SerializeMode serializeMode)
     {
         if (serializeMode == SerializeMode.OBJECT && !(object instanceof Serializable))
         {
@@ -180,20 +222,18 @@ public final class IOUtils
         switch (serializeMode)
         {
             case OBJECT:
-
-                FileOutputStream fout = new FileOutputStream(path.toFile());
-                ObjectOutputStream oos = new ObjectOutputStream(fout);
-
-                oos.writeObject(object);
-
-                oos.close();
-                fout.close();
-
+                try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(path.toFile())))
+                {
+                    objectOutputStream.writeObject(object);
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException("Could not serialize object", e);
+                }
                 break;
 
             case JSON:
-                write(path, gson.toJson(object), WriteMode.OVERWRITE);
-
+                write(path, serializer.serialize(object), WriteMode.OVERWRITE);
                 break;
         }
 
@@ -207,9 +247,9 @@ public final class IOUtils
      * @param string    The string to be written to the file
      * @param writeMode How the write process should be done
      * @return Path object representing the final file's location
-     * @throws IOException Thrown if anything goes wrong during the write
+     * @throws RuntimeException Thrown if anything goes wrong during the write
      */
-    public Path write(String fileName, String string, WriteMode writeMode) throws IOException
+    public Path write(String fileName, String string, WriteMode writeMode)
     {
         if (fileName == null || fileName.isEmpty())
         {
@@ -221,7 +261,7 @@ public final class IOUtils
             throw new IllegalArgumentException("The argument 'string' must be valid.");
         }
 
-        return write(Paths.get(getBasePath().toString(), fileName), string, writeMode);
+        return write(Paths.get(getProjectDirectory().toString(), fileName), string, writeMode);
     }
 
     /**
@@ -231,9 +271,9 @@ public final class IOUtils
      * @param string    The string to be written to the file
      * @param writeMode How the write process should be done
      * @return Path object representing the final file's location
-     * @throws IOException Thrown if anything goes wrong during the write
+     * @throws RuntimeException Thrown if anything goes wrong during the write
      */
-    public Path write(Path path, String string, WriteMode writeMode) throws IOException
+    public Path write(Path path, String string, WriteMode writeMode)
     {
         StandardOpenOption openOption = StandardOpenOption.WRITE;
 
@@ -248,7 +288,14 @@ public final class IOUtils
                 break;
         }
 
-        return Files.write(path, string.getBytes(), openOption);
+        try
+        {
+            return Files.write(path, string.getBytes(), openOption);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not write to file", e);
+        }
     }
 
     /**
@@ -256,9 +303,9 @@ public final class IOUtils
      *
      * @param fileName The file's name
      * @return StringBuilder containing all the data of the file
-     * @throws IOException Thrown if the file could not be read
+     * @throws RuntimeException Thrown if the file could not be read
      */
-    public StringBuilder read(String fileName) throws IOException
+    public StringBuilder read(String fileName)
     {
         if (fileName == null || fileName.isEmpty())
         {
@@ -273,12 +320,19 @@ public final class IOUtils
      *
      * @param path The file's path
      * @return StringBuilder containing all the data of the file
-     * @throws IOException Thrown if the file could not be read
+     * @throws RuntimeException Thrown if the file could not be read
      */
-    public StringBuilder read(Path path) throws IOException
+    public StringBuilder read(Path path)
     {
         StringBuilder stringBuilder = new StringBuilder();
-        Files.readAllLines(path).stream().forEach(stringBuilder::append);
+        try
+        {
+            Files.readAllLines(path).forEach(s -> stringBuilder.append(s).append("\n"));
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not read file", e);
+        }
 
         return stringBuilder;
     }
@@ -289,9 +343,9 @@ public final class IOUtils
      * @param fileName   The file's (or folder's) name
      * @param deleteMode Determines how the delete procedure should be executed; e.g. mode {@code RECURSIVE} must be used to delete folders
      * @return true if the delete operation executed, otherwise false
-     * @throws IOException Thrown is the file could not be deleted
+     * @throws RuntimeException Thrown is the file could not be deleted
      */
-    public boolean delete(String fileName, DeleteMode deleteMode) throws IOException
+    public boolean delete(String fileName, DeleteMode deleteMode)
     {
         if (fileName == null || fileName.isEmpty())
         {
@@ -307,64 +361,105 @@ public final class IOUtils
      * @param path       The file's (or folder's) path
      * @param deleteMode Determines how the delete procedure should be executed; e.g. mode {@code RECURSIVE} must be used to delete folders
      * @return true if the delete operation executed, otherwise false
-     * @throws IOException Thrown is the file could not be deleted
+     * @throws RuntimeException Thrown is the file could not be deleted
      */
-    public boolean delete(Path path, DeleteMode deleteMode) throws IOException
+    public boolean delete(Path path, DeleteMode deleteMode)
     {
-        switch (deleteMode)
+        try
         {
-            case SHALLOW:
-                if (Files.isDirectory(path)) return false;
+            switch (deleteMode)
+            {
+                case SHALLOW:
+                    if (Files.isDirectory(path)) return false;
 
-                return Files.deleteIfExists(path);
+                    return Files.deleteIfExists(path);
 
-            case RECURSIVE:
-                if (!Files.isDirectory(path)) return false;
+                case RECURSIVE:
+                    if (!Files.isDirectory(path)) return false;
 
-                Files.walkFileTree(path, new SimpleFileVisitor<Path>()
-                {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+                    Files.walkFileTree(path, new SimpleFileVisitor<Path>()
                     {
-                        Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+                        {
+                            Files.delete(file);
+                            return FileVisitResult.CONTINUE;
+                        }
 
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-                    {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+                        {
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
 
-                boolean result = !Files.exists(getTemporaryDirectoryPath());
-                Files.createDirectory(getTemporaryDirectoryPath());
-                return result;
+                    boolean result = !Files.exists(getTemporaryDirectoryPath());
+                    Files.createDirectory(getTemporaryDirectoryPath());
+                    return result;
 
-            default:
-                return false;
+                default:
+                    return false;
+            }
         }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not delete file", e);
+        }
+    }
+
+    private Path getStoragePath(String key)
+    {
+        return Paths.get(getStorageDirectory().toString(), String.format("%s.json", key));
+    }
+
+    public void toStorage(String key, Object value)
+    {
+        final Path storagePath = getStoragePath(key);
+        final String objectJson = serializer.serialize(value);
+
+        write(storagePath, objectJson, WriteMode.OVERWRITE);
+    }
+
+    public void deleteFromStorage(String key)
+    {
+        final Path storagePath = getStoragePath(key);
+        delete(storagePath, DeleteMode.SHALLOW);
+    }
+
+    public <T> T fromStorage(String key, Class<T> targetClass)
+    {
+        final Path storagePath = getStoragePath(key);
+        final StringBuilder objectJson = read(storagePath);
+
+        return serializer.deserialize(objectJson.toString(), targetClass);
     }
 
     /**
      * Creates a new directory in the {@code temp} directory of the application, with an {@code UUID} as the name.
      *
      * @return Path object representing the newly created directory
-     * @throws IOException Thrown if the directory could not be created
+     * @throws RuntimeException Thrown if the directory could not be created
      */
-    public Path newTempDir() throws IOException
+    public Path newTempDir()
     {
-        return Files.createDirectory(Paths.get(getTemporaryDirectoryPath().toString(), UUID.randomUUID().toString()));
+        try
+        {
+            return Files.createDirectory(Paths.get(getTemporaryDirectoryPath().toString(), UUID.randomUUID().toString()));
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not create temporary directory", e);
+        }
     }
 
     /**
      * Creates a new file in the {@code temp} directory of the application, with an {@code UUID} as the name, and {@code tmp} as the file extension.
      *
      * @return Path object representing the newly created file
-     * @throws IOException Thrown if the file could not be created
+     * @throws RuntimeException Thrown if the file could not be created
      */
-    public Path newTempFile() throws IOException
+    public Path newTempFile()
     {
         return newTempFile("tmp");
     }
@@ -374,9 +469,9 @@ public final class IOUtils
      *
      * @param extension The file extension to be used
      * @return Path object representing the newly created file
-     * @throws IOException Thrown if the file could not be created
+     * @throws RuntimeException Thrown if the file could not be created
      */
-    public Path newTempFile(String extension) throws IOException
+    public Path newTempFile(String extension)
     {
         if (extension == null || extension.isEmpty())
         {
@@ -387,7 +482,14 @@ public final class IOUtils
             throw new IllegalArgumentException("The argument 'extension' must less than " + (255 - 36) + " characters long.");
         }
 
-        return Files.createFile(Paths.get(getTemporaryDirectoryPath().toString(), UUID.randomUUID().toString() + "." + extension));
+        try
+        {
+            return Files.createFile(Paths.get(getTemporaryDirectoryPath().toString(), UUID.randomUUID().toString() + "." + extension));
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not create temporary file", e);
+        }
     }
 
     /**
@@ -395,9 +497,9 @@ public final class IOUtils
      *
      * @param fileName The file's name
      * @return Path object representing the newly created file
-     * @throws IOException Thrown if the file could not be created
+     * @throws RuntimeException Thrown if the file could not be created
      */
-    public Path newFile(String fileName) throws IOException
+    public Path newFile(String fileName)
     {
         if (fileName == null || fileName.isEmpty())
         {
@@ -412,12 +514,19 @@ public final class IOUtils
      *
      * @param path The file's path
      * @return Path object representing the newly created file
-     * @throws IOException Thrown if the file could not be created
+     * @throws RuntimeException Thrown if the file could not be created
      */
-    public Path newFile(Path path) throws IOException
+    public Path newFile(Path path)
     {
-        Files.createDirectories(path);
-        return Files.createFile(path);
+        createIfNotExists(path);
+        try
+        {
+            return Files.createFile(path);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Could not create file", e);
+        }
     }
 
     /**
@@ -451,9 +560,9 @@ public final class IOUtils
      * <b>Deletes</b> all contents of the application's {@code temp} directory.
      *
      * @return true if the delete operation executed, false otherwise
-     * @throws IOException Thrown if the files could not be cleared
+     * @throws RuntimeException Thrown if the files could not be cleared
      */
-    public boolean clearTempFiles() throws IOException
+    public boolean clearTempFiles()
     {
         return delete(getTemporaryDirectoryPath(), DeleteMode.RECURSIVE);
     }
