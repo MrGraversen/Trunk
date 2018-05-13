@@ -5,6 +5,7 @@ import io.graversen.trunk.io.serialization.interfaces.ISerializer;
 import io.graversen.trunk.os.OSUtils;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.UUID;
@@ -16,6 +17,7 @@ public final class IOUtils
 
     private final ISerializer serializer;
     private final OSUtils osUtils;
+    final ClassLoader classLoader;
 
     public final String DEFAULT_WINDOWS_PATH;
     public final String DEFAULT_MAC_PATH;
@@ -36,6 +38,7 @@ public final class IOUtils
     {
         this.osUtils = new OSUtils();
         this.serializer = serializer;
+        this.classLoader = ClassLoader.getSystemClassLoader();
 
         this.PROJECT_DIRECTORY_NAME = projectDirectoryName;
         this.DEFAULT_WINDOWS_PATH = Paths.get(System.getenv("APPDATA"), PROJECT_DIRECTORY_NAME).toString();
@@ -434,6 +437,16 @@ public final class IOUtils
 
         return serializer.deserialize(objectJson.toString(), targetClass);
     }
+
+    public StringBuilder readResource(String resourceName)
+    {
+        final URL resource = classLoader.getResource(resourceName);
+        if (resource == null) throw new IllegalArgumentException(String.format("Resource %s was not found", resourceName));
+
+        final File resourceFile = new File(resource.getFile());
+        return read(resourceFile.toPath());
+    }
+
 
     /**
      * Creates a new directory in the {@code temp} directory of the application, with an {@code UUID} as the name.
