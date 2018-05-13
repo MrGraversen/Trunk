@@ -3,7 +3,6 @@ package io.graversen.trunk.random;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 public class RandomUtilsBuilder
 {
