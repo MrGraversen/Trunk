@@ -2,12 +2,42 @@ package io.graversen.trunk.network;
 
 import org.apache.commons.net.util.SubnetUtils;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 
 public class IpAddressUtils
 {
     private static final Pattern IP_ADDRESS_REGEX = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+    private static final String[] IP_HEADER_CANDIDATES = {
+            "X-Forwarded-For",
+            "X-Forwarded-Host",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED",
+            "HTTP_VIA",
+            "REMOTE_ADDR"
+    };
+
+    public static String getClientIpAddress(Map<String, String> httpHeaders)
+    {
+        for (String ipHeaderCandidate : IP_HEADER_CANDIDATES)
+        {
+            final String possibleHeaderValue = httpHeaders.get(ipHeaderCandidate);
+
+            if (possibleHeaderValue != null)
+            {
+                return possibleHeaderValue;
+            }
+        }
+
+        return "unknown";
+    }
 
     public boolean isIpAddressValid(String ipAddress)
     {
