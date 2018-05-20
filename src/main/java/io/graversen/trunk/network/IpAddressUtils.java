@@ -24,7 +24,7 @@ public class IpAddressUtils
             "REMOTE_ADDR"
     };
 
-    public static String getClientIpAddress(Map<String, String> httpHeaders)
+    public String getClientIpAddress(Map<String, String> httpHeaders)
     {
         for (String ipHeaderCandidate : IP_HEADER_CANDIDATES)
         {
