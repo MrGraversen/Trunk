@@ -9,7 +9,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Disabled
 class PasswordGeneratorTest
 {
     private PasswordGenerator passwordGenerator;
