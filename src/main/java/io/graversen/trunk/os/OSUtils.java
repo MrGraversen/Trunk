@@ -1,12 +1,17 @@
 package io.graversen.trunk.os;
 
 import java.awt.*;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class OSUtils
 {
-    public static void openInDefaultBrowser(String url)
+    public void openInDefaultBrowser(String url)
     {
         if (Desktop.isDesktopSupported())
         {
@@ -22,10 +27,38 @@ public class OSUtils
         }
     }
 
-    public static boolean isHeadless()
+    public boolean isHeadless()
     {
         final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         return graphicsEnvironment.isHeadlessInstance();
+    }
+
+    public boolean isRaspberryPi()
+    {
+        if (getOperatingSystem().equals(OS.Linux))
+        {
+            final Path osReleasePath = Paths.get("etc", "os-release");
+
+            if (Files.exists(osReleasePath))
+            {
+                try
+                {
+                    return Files.lines(osReleasePath).anyMatch(s -> s.toLowerCase().contains("raspbian"));
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException("Could not read 'os-release'", e);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isArmArchitecture()
+    {
+        final String osArch = System.getProperty("os.arch");
+        return osArch.contains("arm");
     }
 
     public OS getOperatingSystem()

@@ -99,7 +99,7 @@ public class RandomUtils
         return randomInt(1, diceType.getSides());
     }
 
-    public static UUID UUID()
+    public UUID UUID()
     {
         return UUID.randomUUID();
     }
