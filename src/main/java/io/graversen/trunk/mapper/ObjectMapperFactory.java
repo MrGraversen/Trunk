@@ -25,5 +25,4 @@ public class ObjectMapperFactory
 
         return objectMapper;
     }
-
 }
