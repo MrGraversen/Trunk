@@ -1,4 +1,4 @@
-package io.graversen.trunk.io.serialization;
+package io.graversen.trunk.io.serialization.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

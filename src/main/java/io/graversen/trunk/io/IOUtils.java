@@ -1,6 +1,6 @@
 package io.graversen.trunk.io;
 
-import io.graversen.trunk.io.serialization.PrettyPrintGsonSerializer;
+import io.graversen.trunk.io.serialization.json.PrettyPrintGsonSerializer;
 import io.graversen.trunk.io.serialization.interfaces.ISerializer;
 import io.graversen.trunk.os.OSUtils;
 

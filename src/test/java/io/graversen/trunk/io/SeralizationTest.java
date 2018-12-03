@@ -1,7 +1,7 @@
 package io.graversen.trunk.io;
 
-import io.graversen.trunk.io.serialization.GsonSerializer;
-import io.graversen.trunk.io.serialization.PrettyPrintGsonSerializer;
+import io.graversen.trunk.io.serialization.json.GsonSerializer;
+import io.graversen.trunk.io.serialization.json.PrettyPrintGsonSerializer;
 import io.graversen.trunk.io.serialization.interfaces.ISerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
