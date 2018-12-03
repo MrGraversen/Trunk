@@ -15,9 +15,9 @@ public class SerializerFactory
 
     }
 
-    public static ISerializer buildSerializer(DataFormats dataFormats)
+    public static ISerializer buildSerializer(DataFormats dataFormat)
     {
-        return buildSerializer(dataFormats, null);
+        return buildSerializer(dataFormat, null);
     }
 
     public static ISerializer buildSerializer(DataFormats dataFormat, ObjectMapper mapper)
