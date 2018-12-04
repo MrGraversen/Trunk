@@ -40,8 +40,23 @@ Handles aggregation of hardware-related information, using the [OSHI project](ht
 ### `hashing`
 Some wrappers of the `java.security` functionality.
 
+### `instrumentation`
+Measure code execution with simple instrumentation.
+
 ### `io`
 Anything related to IO; also serialisation. Wrapping of `java.nio` to allow for more ease-of-use.
+
+#### `serialization`
+Exposing JSON, XML, and YAML serialization using Google GSON and Jackson.
+
+### `mapper`
+Opinionated packaging of `org.modelmapper`, with additional util.
+
+### `network`
+Utilities for aiding web frameworks etc.
+
+### `objects`
+Additional helpers for working with common types.
 
 ### `os`
 *"Write once, run anywhere"* - but provide no easy way of determining the underlying operating system. That's fixed now.
@@ -57,6 +72,9 @@ Generate random stuff, even using `/dev/urandom` if you're on \*nix systems!
 ### `reflection`
 Tools related to Java reflection techniques.
 
+### `sql`
+Lessening the pain of working with connection strings etc.
+
 ## Dependencies
 
 This module also serves as a easy way of bundling together commonly-used dependencies, such as:
@@ -65,5 +83,7 @@ This module also serves as a easy way of bundling together commonly-used depende
 * com.google.code.gson.gson
 * org.apache.commons.commons-lang3
 * commons-codec.commons-codec
+* com.google.guava
+* org.modelmapper
 
 Uses JUnit 5.
