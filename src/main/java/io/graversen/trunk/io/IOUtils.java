@@ -24,11 +24,6 @@ public final class IOUtils
     public final String DEFAULT_LINUX_PATH;
     public final String DEFAULT_UNKNOWN_PATH;
 
-    public IOUtils()
-    {
-        this(null);
-    }
-
     public IOUtils(String projectDirectoryName)
     {
         this(projectDirectoryName, new PrettyPrintGsonSerializer());
@@ -45,6 +40,11 @@ public final class IOUtils
         this.DEFAULT_MAC_PATH = Paths.get(File.separator, "usr", "local", PROJECT_DIRECTORY_NAME).toString();
         this.DEFAULT_LINUX_PATH = Paths.get(File.separator, "etc", PROJECT_DIRECTORY_NAME).toString();
         this.DEFAULT_UNKNOWN_PATH = DEFAULT_LINUX_PATH;
+    }
+
+    public static IOUtils automaticProjectName()
+    {
+        return new IOUtils(UUID.randomUUID().toString().toLowerCase());
     }
 
     private void validateProjectName()
