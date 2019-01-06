@@ -1,13 +1,12 @@
 package io.graversen.trunk.instrumentation;
 
-import io.graversen.trunk.instrumentation.util.DefaultMeasurementsBin;
 import io.graversen.trunk.instrumentation.util.IMeasurementsBin;
+import io.graversen.trunk.instrumentation.util.MeasurementBins;
 
 import java.util.concurrent.Callable;
 
 public class Instrumentation
 {
-    private final static IMeasurementsBin defaultMeasurementsBin = new DefaultMeasurementsBin();
     private static boolean nanoPrecision = false;
 
     private Instrumentation()
@@ -37,7 +36,7 @@ public class Instrumentation
 
     public static <T> T measure(Callable<T> callable, String measurement)
     {
-        return Instrumentation.measure(callable, measurement, defaultMeasurementsBin);
+        return Instrumentation.measure(callable, measurement, MeasurementBins.defaultBin());
     }
 
     public static <T> T measure(Callable<T> callable, String measurement, IMeasurementsBin measurementsBin)
@@ -64,7 +63,7 @@ public class Instrumentation
 
     public static void measure(Runnable runnable, String measurement)
     {
-        Instrumentation.measure(runnable, measurement, defaultMeasurementsBin);
+        Instrumentation.measure(runnable, measurement, MeasurementBins.defaultBin());
     }
 
     public static void measure(Runnable runnable, String measurement, IMeasurementsBin measurementsBin)
