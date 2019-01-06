@@ -4,8 +4,8 @@ import java.util.stream.LongStream;
 
 public class MathUtils
 {
-    public static final int MAX_FACTORIAL = 20;
-    public static final int MAX_POWER = 20;
+    public static int MAX_FACTORIAL = 20;
+    public static int MAX_POWER = 20;
 
     private static final int ZERO = 0;
     private static final int ONE = 1;
