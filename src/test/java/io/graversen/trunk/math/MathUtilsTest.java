@@ -31,4 +31,19 @@ public class MathUtilsTest
         assertThrows(IllegalArgumentException.class, () -> mathUtils.factorial(MathUtils.MAX_FACTORIAL + 1));
         assertThrows(IllegalArgumentException.class, () -> mathUtils.factorial(-1));
     }
+
+    @Test
+    void test_uniqueCombinations_success()
+    {
+        assertEquals(6L, mathUtils.uniqueCombinations(2, 2));
+        assertEquals(11110L, mathUtils.uniqueCombinations(4, 10));
+    }
+
+    @Test
+    void test_uniqueCombinations_outOfBounds()
+    {
+        assertThrows(IllegalArgumentException.class, () -> mathUtils.uniqueCombinations(MathUtils.MAX_FACTORIAL + 1, 1337));
+        assertThrows(IllegalArgumentException.class, () -> mathUtils.uniqueCombinations(-1, 1337));
+        assertThrows(IllegalArgumentException.class, () -> mathUtils.uniqueCombinations(0, 1337));
+    }
 }
