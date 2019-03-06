@@ -5,7 +5,7 @@ import com.nulabinc.zxcvbn.Zxcvbn;
 
 import java.util.Arrays;
 
-public class Password implements CharSequence
+public class Password implements CharSequence, AutoCloseable
 {
     private final char[] chars;
 
@@ -48,13 +48,6 @@ public class Password implements CharSequence
     }
 
     @Override
-    public void finalize() throws Throwable
-    {
-        clear();
-        super.finalize();
-    }
-
-    @Override
     public String toString()
     {
         return new String(chars);
@@ -64,5 +57,11 @@ public class Password implements CharSequence
     {
         Zxcvbn zxcvbn = new Zxcvbn();
         return zxcvbn.measure(new String(chars));
+    }
+
+    @Override
+    public void close()
+    {
+        clear();
     }
 }
