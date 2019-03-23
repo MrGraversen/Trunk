@@ -15,6 +15,9 @@ public class NonsenseGenerator
     private final List<String> adjectives;
     private final List<String> verbs;
     private final List<String> adverbs;
+    private final List<String> cities;
+    private final List<String> animals;
+    private final List<String> colors;
 
     public NonsenseGenerator()
     {
@@ -24,6 +27,9 @@ public class NonsenseGenerator
         adjectives = io.readResourceLines("adjectives.txt");
         verbs = io.readResourceLines("verbs.txt");
         adverbs = io.readResourceLines("adverbs.txt");
+        cities = io.readResourceLines("cities.txt");
+        animals = io.readResourceLines("animals.txt");
+        colors = io.readResourceLines("colors.txt");
     }
 
     public String makeNonsense()
