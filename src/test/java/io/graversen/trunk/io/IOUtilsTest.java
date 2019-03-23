@@ -50,6 +50,15 @@ class IOUtilsTest
         ioUtils.deleteFromStorage("person");
     }
 
+    @Test
+    void testWordLists()
+    {
+        assertFalse(ioUtils.readResourceLines("adjectives.txt").isEmpty());
+        assertFalse(ioUtils.readResourceLines("adverbs.txt").isEmpty());
+        assertFalse(ioUtils.readResourceLines("nouns.txt").isEmpty());
+        assertFalse(ioUtils.readResourceLines("adverbs.txt").isEmpty());
+    }
+
     public static class Person implements Serializable
     {
         private final String name;
