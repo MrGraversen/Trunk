@@ -23,4 +23,10 @@ public class NonsenseGeneratorTest
         assertFalse(nonsenseGenerator.verbs().isEmpty());
         assertFalse(nonsenseGenerator.adverbs().isEmpty());
     }
+
+    @Test
+    void testMakeNonsense()
+    {
+        nonsenseGenerator.makeNonsense();
+    }
 }

@@ -26,6 +26,15 @@ public class NonsenseGenerator
         adverbs = io.readResourceLines("adverbs.txt");
     }
 
+    public String makeNonsense()
+    {
+        final String subject = createNoun();
+        final String verb = createVerb();
+        final String object = createNoun();
+
+        return capitalize(subject + SPACE + verb + SPACE + object);
+    }
+
     public List<String> nouns()
     {
         return nouns;
