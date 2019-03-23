@@ -61,6 +61,21 @@ public class NonsenseGenerator
         return adverbs;
     }
 
+    public List<String> cities()
+    {
+        return cities;
+    }
+
+    public List<String> animals()
+    {
+        return animals;
+    }
+
+    public List<String> colors()
+    {
+        return colors;
+    }
+
     private String createNoun()
     {
         final String noun = nouns().get(RANDOM.nextInt(nouns().size()));
