@@ -1,13 +1,15 @@
 package io.graversen.trunk.io;
 
-import io.graversen.trunk.io.serialization.json.PrettyPrintGsonSerializer;
 import io.graversen.trunk.io.serialization.interfaces.ISerializer;
+import io.graversen.trunk.io.serialization.json.PrettyPrintGsonSerializer;
 import io.graversen.trunk.os.OSUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class IOUtils
@@ -36,15 +38,32 @@ public final class IOUtils
         this.classLoader = ClassLoader.getSystemClassLoader();
 
         this.PROJECT_DIRECTORY_NAME = projectDirectoryName;
-        this.DEFAULT_WINDOWS_PATH = Paths.get(System.getenv("APPDATA"), PROJECT_DIRECTORY_NAME).toString();
-        this.DEFAULT_MAC_PATH = Paths.get(File.separator, "usr", "local", PROJECT_DIRECTORY_NAME).toString();
-        this.DEFAULT_LINUX_PATH = Paths.get(File.separator, "etc", PROJECT_DIRECTORY_NAME).toString();
-        this.DEFAULT_UNKNOWN_PATH = DEFAULT_LINUX_PATH;
+
+        this.DEFAULT_WINDOWS_PATH = Objects.nonNull(PROJECT_DIRECTORY_NAME)
+                ? Paths.get(System.getenv("APPDATA"), PROJECT_DIRECTORY_NAME).toString()
+                : null;
+
+        this.DEFAULT_MAC_PATH = Objects.nonNull(PROJECT_DIRECTORY_NAME)
+                ? Paths.get(File.separator, "usr", "local", PROJECT_DIRECTORY_NAME).toString()
+                : null;
+
+        this.DEFAULT_LINUX_PATH = Objects.nonNull(PROJECT_DIRECTORY_NAME)
+                ? Paths.get(File.separator, "etc", PROJECT_DIRECTORY_NAME).toString()
+                : null;
+
+        this.DEFAULT_UNKNOWN_PATH = Objects.nonNull(PROJECT_DIRECTORY_NAME)
+                ? DEFAULT_LINUX_PATH
+                : null;
     }
 
     public static IOUtils automaticProjectName()
     {
         return new IOUtils(UUID.randomUUID().toString().toLowerCase());
+    }
+
+    public static IOUtils noProjectName()
+    {
+        return new IOUtils(null);
     }
 
     private void validateProjectName()
@@ -73,6 +92,7 @@ public final class IOUtils
     public Path getStorageDirectory()
     {
         validateProjectName();
+
         final Path storageDirectoryPath = Paths.get(getProjectDirectory().toString(), ".storage");
         createIfNotExists(storageDirectoryPath);
         return storageDirectoryPath;
@@ -81,6 +101,7 @@ public final class IOUtils
     public Path getProjectDirectory()
     {
         validateProjectName();
+
         final Path projectDirectoryPath = getProjectDirectoryPath();
         createIfNotExists(projectDirectoryPath);
         return projectDirectoryPath;
@@ -88,6 +109,8 @@ public final class IOUtils
 
     private Path getProjectDirectoryPath()
     {
+        validateProjectName();
+
         switch (osUtils.getOperatingSystem())
         {
             case Windows:
@@ -108,6 +131,8 @@ public final class IOUtils
      */
     public Path getBasePath()
     {
+        validateProjectName();
+
         switch (osUtils.getOperatingSystem())
         {
             case Windows:
@@ -445,6 +470,12 @@ public final class IOUtils
 
         final File resourceFile = new File(resource.getFile());
         return read(resourceFile.toPath());
+    }
+
+    public List<String> readResourceLines(String resourceName)
+    {
+        final String resource = readResource(resourceName).toString();
+        return List.of(resource.split(System.lineSeparator()));
     }
 
 
